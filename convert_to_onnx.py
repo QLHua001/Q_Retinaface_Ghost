@@ -1,14 +1,14 @@
 from __future__ import print_function
 import argparse
 import torch
-from data import cfg_mnet, cfg_re50
-from models.retinaface_g import RetinaFace
+from data import cfg_mnet, cfg_re50, cfg_gnet
+
 
 
 parser = argparse.ArgumentParser(description='Test')
-parser.add_argument('-m', '--trained_model', default='./weights/mobilenet0.25_Final.pth',
+parser.add_argument('-m', '--trained_model', default='./weights/ghostnet_Final.pth',
                     type=str, help='Trained state_dict file path to open')
-parser.add_argument('--network', default='mobile0.25', help='Backbone network mobile0.25 or resnet50')
+parser.add_argument('--network', default='ghostnet', help='Backbone network mobile0.25 or resnet50')
 parser.add_argument('--long_side', default=640, help='when origin_size is false, long_side is scaled size(320 or 640 for long side)')
 parser.add_argument('--cpu', action="store_true", default=True, help='Use cpu inference')
 
@@ -55,9 +55,14 @@ if __name__ == '__main__':
     torch.set_grad_enabled(False)
     cfg = None
     if args.network == "mobile0.25":
+        from models.retinaface_m import RetinaFace
         cfg = cfg_mnet
     elif args.network == "resnet50":
+        from models.retinaface_m import RetinaFace
         cfg = cfg_re50
+    elif args.network == "ghostnet":
+        from models.retinaface_g import RetinaFace
+        cfg = cfg_gnet
     # net and model
     net = RetinaFace(cfg=cfg, phase = 'test')
     net = load_model(net, args.trained_model, args.cpu)
